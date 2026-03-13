@@ -108,7 +108,7 @@
 
 @layer components {
   .pdf-highlight-sentence {
-    @apply bg-primary/16 border-primary/36 shadow-sm dark:bg-primary/26 dark:border-primary/46;
+    @apply bg-primary/16 border-transparent shadow-sm dark:bg-primary/26;
   }
 
   .pdf-highlight-word {

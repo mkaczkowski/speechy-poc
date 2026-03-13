@@ -37,7 +37,8 @@ describe('HighlightOverlay', () => {
     },
     {
       testId: 'word-highlight',
-      expectedStyle: { left: '15px', top: '22px', width: '50px', height: '14px' },
+      // Word rects expand vertically by 20%, centered: top = 22 - (14*0.2)/2 = 20.6, height = 14 * 1.2 = 16.8
+      expectedStyle: { left: '15px', top: '20.6px', width: '50px', height: '16.8px' },
     },
   ])('applies correct style for $testId', ({ testId, expectedStyle }) => {
     render(<HighlightOverlay sentenceRects={sentenceRects} wordRects={wordRects} />);

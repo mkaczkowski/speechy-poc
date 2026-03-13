@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { buildCharMap, computeHighlightRects, findCharIndex, findSegmentIndex, segmentText } from '@/lib/textMapping';
 import type { CharMap, TextSegment } from '@/types/pdf';
@@ -112,41 +112,104 @@ describe('findCharIndex', () => {
 
 describe('computeHighlightRects', () => {
   let charMap: CharMap;
-  let containerEl: HTMLElement;
+
+  // Helper: build simple itemRects and charToItem from the charMap.
+  // Each span becomes one ItemRect positioned at the given coords.
+  function makeItemData(rects: { left: number; top: number; width: number; height: number }[]) {
+    const itemRects = rects.map((r, idx) => {
+      // Count chars belonging to this item.
+      let count = 0;
+      let itemIdx = 0;
+      let prevNode: Text | null = null;
+      for (const entry of charMap.entries) {
+        if (entry.offsetInNode < 0) continue;
+        if (entry.node !== prevNode) {
+          if (prevNode !== null) itemIdx++;
+          prevNode = entry.node;
+        }
+        if (itemIdx === idx) count++;
+      }
+      // Equal-width charOffsets for tests (no font measurement in jsdom).
+      const charOffsets = new Float32Array(count + 1);
+      for (let i = 0; i <= count; i++) {
+        charOffsets[i] = i / count;
+      }
+      return { ...r, charCount: count, textLeft: r.left, textWidth: r.width, charOffsets };
+    });
+
+    const charToItem = new Int32Array(charMap.entries.length).fill(-1);
+    const itemStartChars = new Int32Array(itemRects.length).fill(-1);
+    let itemIdx = 0;
+    let prevNode: Text | null = null;
+    for (let ci = 0; ci < charMap.entries.length; ci++) {
+      const entry = charMap.entries[ci];
+      if (entry.offsetInNode < 0) continue;
+      if (entry.node !== prevNode) {
+        if (prevNode !== null) itemIdx++;
+        prevNode = entry.node;
+      }
+      if (itemIdx < itemRects.length) {
+        charToItem[ci] = itemIdx;
+        if (itemStartChars[itemIdx] === -1) {
+          itemStartChars[itemIdx] = ci;
+        }
+      }
+    }
+    // Back-fill synthetic spaces.
+    for (let ci = charMap.entries.length - 1; ci >= 0; ci--) {
+      if (charToItem[ci] === -1 && ci + 1 < charToItem.length) {
+        charToItem[ci] = charToItem[ci + 1];
+      }
+    }
+
+    return { itemRects, charToItem, itemStartChars };
+  }
 
   beforeEach(() => {
-    containerEl = makeTextLayer(['Hello', 'world']);
+    const containerEl = makeTextLayer(['Hello', 'world']);
     document.body.appendChild(containerEl);
     charMap = buildCharMap(containerEl);
-
-    if (!Range.prototype.getClientRects) {
-      Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
-    }
   });
 
-  it('maps browser rects into container-relative highlight rects', () => {
-    vi.spyOn(Range.prototype, 'getClientRects').mockReturnValue(
-      [{ left: 110, top: 220, width: 50, height: 16 }] as unknown as DOMRectList,
-    );
-    vi.spyOn(containerEl, 'getBoundingClientRect').mockReturnValue({ left: 100, top: 200 } as DOMRect);
-
-    expect(computeHighlightRects(charMap, 0, 5, containerEl)).toEqual([
+  it('returns item rect for a full-item range', () => {
+    const { itemRects, charToItem, itemStartChars } = makeItemData([
       { left: 10, top: 20, width: 50, height: 16 },
+      { left: 70, top: 20, width: 60, height: 16 },
+    ]);
+
+    // "Hello" occupies chars 0..4 — the full first item.
+    const rects = computeHighlightRects(charMap, 0, 5, itemRects, charToItem, itemStartChars);
+    expect(rects).toEqual([{ left: 10, top: 20, width: 50, height: 16 }]);
+  });
+
+  it('returns one rect per item for a multi-item range', () => {
+    const { itemRects, charToItem, itemStartChars } = makeItemData([
+      { left: 10, top: 20, width: 50, height: 16 },
+      { left: 70, top: 20, width: 60, height: 16 },
+    ]);
+
+    // "Hello world" — chars 0..11, covers both items fully.
+    const rects = computeHighlightRects(charMap, 0, 11, itemRects, charToItem, itemStartChars);
+    expect(rects).toHaveLength(2);
+    expect(rects).toEqual([
+      { left: 10, top: 20, width: 50, height: 16 },
+      { left: 70, top: 20, width: 60, height: 16 },
     ]);
   });
 
-  it('filters out zero-sized browser rects', () => {
-    vi.spyOn(Range.prototype, 'getClientRects').mockReturnValue(
-      [
-        { left: 10, top: 20, width: 0, height: 0 },
-        { left: 30, top: 40, width: 50, height: 16 },
-      ] as unknown as DOMRectList,
-    );
-    vi.spyOn(containerEl, 'getBoundingClientRect').mockReturnValue({ left: 0, top: 0 } as DOMRect);
+  it('filters out zero-sized item rects', () => {
+    const { itemRects, charToItem, itemStartChars } = makeItemData([
+      { left: 0, top: 0, width: 0, height: 0 },
+      { left: 30, top: 40, width: 50, height: 16 },
+    ]);
 
-    const rects = computeHighlightRects(charMap, 0, 5, containerEl);
+    const rects = computeHighlightRects(charMap, 0, 11, itemRects, charToItem, itemStartChars);
     expect(rects).toHaveLength(1);
     expect(rects[0].width).toBe(50);
+  });
+
+  it('returns empty array when itemRects are not provided', () => {
+    expect(computeHighlightRects(charMap, 0, 5, null, null, null)).toEqual([]);
   });
 
   it.each([
@@ -155,7 +218,7 @@ describe('computeHighlightRects', () => {
     { startChar: -1, endChar: 5 },
     { startChar: 0, endChar: 1000 },
   ])('returns empty array for invalid range ($startChar, $endChar)', ({ startChar, endChar }) => {
-    expect(computeHighlightRects(charMap, startChar, endChar, containerEl)).toEqual([]);
+    expect(computeHighlightRects(charMap, startChar, endChar, null, null, null)).toEqual([]);
   });
 });
 

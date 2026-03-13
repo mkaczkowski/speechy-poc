@@ -7,6 +7,7 @@ export type {
   CharMap,
   CharMapEntry,
   HighlightRect,
+  ItemRect,
   PdfViewerProps,
   SegmentedText,
   SentenceSegment,

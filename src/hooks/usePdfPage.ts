@@ -1,6 +1,6 @@
 import {type RefObject, useEffect, useReducer} from 'react';
 
-import type {PDFDocumentProxy, PDFPageProxy, RenderTask} from 'pdfjs-dist';
+import type {PDFDocumentProxy, PDFPageProxy, RenderTask, TextContent} from 'pdfjs-dist';
 import {TextLayer} from 'pdfjs-dist';
 
 interface UsePdfPageParams {
@@ -15,27 +15,32 @@ interface State {
     textLayerReady: boolean;
     isRendering: boolean;
     error: Error | null;
+    textContent: TextContent | null;
+    viewport: ReturnType<PDFPageProxy['getViewport']> | null;
 }
 
-type Action = { type: 'idle' } | { type: 'rendering' } | { type: 'ready' } | { type: 'error'; error: Error };
-
 type PdfViewport = ReturnType<PDFPageProxy['getViewport']>;
-type PdfTextContent = Awaited<ReturnType<PDFPageProxy['getTextContent']>>;
+
+type Action =
+    | { type: 'idle' }
+    | { type: 'rendering' }
+    | { type: 'ready'; textContent: TextContent; viewport: PdfViewport }
+    | { type: 'error'; error: Error };
 
 function reducer(_state: State, action: Action): State {
     switch (action.type) {
         case 'idle':
-            return {textLayerReady: false, isRendering: false, error: null};
+            return {textLayerReady: false, isRendering: false, error: null, textContent: null, viewport: null};
         case 'rendering':
-            return {textLayerReady: false, isRendering: true, error: null};
+            return {textLayerReady: false, isRendering: true, error: null, textContent: null, viewport: null};
         case 'ready':
-            return {textLayerReady: true, isRendering: false, error: null};
+            return {textLayerReady: true, isRendering: false, error: null, textContent: action.textContent, viewport: action.viewport};
         case 'error':
-            return {textLayerReady: false, isRendering: false, error: action.error};
+            return {textLayerReady: false, isRendering: false, error: action.error, textContent: null, viewport: null};
     }
 }
 
-const initialState: State = {textLayerReady: false, isRendering: false, error: null};
+const initialState: State = {textLayerReady: false, isRendering: false, error: null, textContent: null, viewport: null};
 
 function setupCanvas(canvas: HTMLCanvasElement, viewport: PdfViewport) {
     const dpr = window.devicePixelRatio || 1;
@@ -60,7 +65,7 @@ function resetTextLayer(textLayerDiv: HTMLDivElement, viewport: PdfViewport) {
     textLayerDiv.style.height = `${viewport.height}px`;
 }
 
-function createTextLayer(textContent: PdfTextContent, container: HTMLDivElement, viewport: PdfViewport) {
+function createTextLayer(textContent: TextContent, container: HTMLDivElement, viewport: PdfViewport) {
     return new TextLayer({
         textContentSource: textContent,
         container,
@@ -140,7 +145,7 @@ export function usePdfPage({document, pageNumber, canvasRef, textLayerRef, conta
                 textLayerInstance = createTextLayer(textContent, textLayerDiv, viewport);
                 await textLayerInstance.render();
                 if (cancelled) return;
-                dispatch({type: 'ready'});
+                dispatch({type: 'ready', textContent, viewport});
             } catch (err: unknown) {
                 if (cancelled) return;
                 if (isCancelledError(err)) {

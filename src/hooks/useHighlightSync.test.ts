@@ -1,7 +1,7 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { CharMap, HighlightRect, SegmentedText } from '@/types';
+import type { CharMap, HighlightRect, ItemRect, SegmentedText } from '@/types';
 
 const mockStoreState = {
   currentSentenceIndex: -1,
@@ -26,13 +26,14 @@ const mockComputeHighlightRects = vi.fn<
     charMap: CharMap,
     startChar: number,
     endChar: number,
-    containerEl: HTMLElement,
-    containerRect?: DOMRect,
+    itemRects: ItemRect[] | null,
+    charToItem: Int32Array | null,
+    itemStartChars: Int32Array | null,
   ) => HighlightRect[]
 >();
 
 vi.mock('@/lib', () => ({
-  computeHighlightRects: (...args: [CharMap, number, number, HTMLElement, DOMRect | undefined]) =>
+  computeHighlightRects: (...args: [CharMap, number, number, ItemRect[] | null, Int32Array | null, Int32Array | null]) =>
     mockComputeHighlightRects(...args),
 }));
 
@@ -45,71 +46,35 @@ const sampleCharMap: CharMap = {
 
 const sampleSegments: SegmentedText = {
   sentences: [
-    { text: 'Hello world. ', startChar: 0, endChar: 13 },
+    { text: 'Hello world.', startChar: 0, endChar: 12 },
     { text: 'Goodbye.', startChar: 13, endChar: 21 },
   ],
   words: [{ text: 'world', startChar: 6, endChar: 11 }],
 };
 
 const sampleRects: HighlightRect[] = [{ left: 10, top: 20, width: 100, height: 16 }];
-const rafQueue = new Map<number, FrameRequestCallback>();
-let nextRafId = 1;
-let resizeObserverCallback: ResizeObserverCallback | null = null;
 
-function flushRaf() {
-  const callbacks = Array.from(rafQueue.values());
-  rafQueue.clear();
-  for (const callback of callbacks) {
-    callback(performance.now());
-  }
-}
+const hookParams = {
+  charMap: sampleCharMap,
+  segments: sampleSegments,
+  container: null as HTMLDivElement | null,
+  itemRects: null,
+  charToItem: null,
+  itemStartChars: null,
+};
 
 describe('useHighlightSync', () => {
   let container: HTMLDivElement;
-  let containerRectSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    rafQueue.clear();
-    nextRafId = 1;
-    resizeObserverCallback = null;
     mockStoreState.currentSentenceIndex = -1;
     mockStoreState.currentWordIndex = -1;
     mockStoreState.isPlaying = false;
     mockStoreState.isPaused = false;
     mockComputeHighlightRects.mockReturnValue(sampleRects);
 
-    vi.stubGlobal(
-      'requestAnimationFrame',
-      vi.fn((callback: FrameRequestCallback) => {
-        const id = nextRafId++;
-        rafQueue.set(id, callback);
-        return id;
-      }),
-    );
-    vi.stubGlobal(
-      'cancelAnimationFrame',
-      vi.fn((id: number) => {
-        rafQueue.delete(id);
-      }),
-    );
-    vi.stubGlobal(
-      'ResizeObserver',
-      class ResizeObserverMock {
-        constructor(callback: ResizeObserverCallback) {
-          resizeObserverCallback = callback;
-        }
-
-        observe() {}
-
-        disconnect() {}
-      },
-    );
-
     container = document.createElement('div');
-    containerRectSpy = vi
-      .spyOn(container, 'getBoundingClientRect')
-      .mockReturnValue(new DOMRect(0, 0, 800, 1000));
   });
 
   afterEach(() => {
@@ -119,7 +84,7 @@ describe('useHighlightSync', () => {
   it('returns no highlights when playback is inactive', () => {
     mockStoreState.currentSentenceIndex = 0;
     const { result } = renderHook(() =>
-      useHighlightSync({ charMap: sampleCharMap, segments: sampleSegments, container }),
+      useHighlightSync({ ...hookParams, container }),
     );
     expect(result.current.sentenceRects).toEqual([]);
     expect(result.current.wordRects).toEqual([]);
@@ -131,7 +96,7 @@ describe('useHighlightSync', () => {
     mockStoreState.currentWordIndex = 0;
 
     const { result } = renderHook(() =>
-      useHighlightSync({ charMap: sampleCharMap, segments: sampleSegments, container }),
+      useHighlightSync({ ...hookParams, container }),
     );
 
     expect(result.current.sentenceRects).toEqual(sampleRects);
@@ -141,39 +106,27 @@ describe('useHighlightSync', () => {
     const secondCall = mockComputeHighlightRects.mock.calls[1];
     expect(firstCall?.[0]).toBe(sampleCharMap);
     expect(firstCall?.[1]).toBe(0);
-    expect(firstCall?.[2]).toBe(13);
-    expect(firstCall?.[3]).toBe(container);
+    expect(firstCall?.[2]).toBe(12);
     expect(secondCall?.[0]).toBe(sampleCharMap);
     expect(secondCall?.[1]).toBe(6);
     expect(secondCall?.[2]).toBe(11);
-    expect(secondCall?.[3]).toBe(container);
   });
 
-  it('reuses cached container rect between high-frequency index updates', () => {
+  it('does not recompute when only container changes', () => {
     mockStoreState.isPlaying = true;
     mockStoreState.currentSentenceIndex = 0;
 
-    const { rerender } = renderHook(() =>
-      useHighlightSync({ charMap: sampleCharMap, segments: sampleSegments, container }),
+    const { rerender } = renderHook(
+      ({ cont }) =>
+        useHighlightSync({ ...hookParams, container: cont }),
+      { initialProps: { cont: container } },
     );
 
-    act(() => {
-      flushRaf();
-    });
-    const baselineCalls = containerRectSpy.mock.calls.length;
-    expect(baselineCalls).toBeGreaterThan(0);
+    const callsAfterFirst = mockComputeHighlightRects.mock.calls.length;
 
-    mockStoreState.currentWordIndex = 0;
-    rerender();
-    expect(containerRectSpy.mock.calls.length).toBe(baselineCalls);
-
-    act(() => {
-      resizeObserverCallback?.(
-        [{ target: container, contentRect: { width: 840 } as DOMRectReadOnly } as unknown as ResizeObserverEntry],
-        {} as ResizeObserver,
-      );
-      flushRaf();
-    });
-    expect(containerRectSpy.mock.calls.length).toBe(baselineCalls + 1);
+    // Changing container should not trigger recompute of rects (container is only used for scrolling).
+    const newContainer = document.createElement('div');
+    rerender({ cont: newContainer });
+    expect(mockComputeHighlightRects.mock.calls.length).toBe(callsAfterFirst);
   });
 });

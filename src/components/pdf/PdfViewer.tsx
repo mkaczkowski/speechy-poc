@@ -18,6 +18,9 @@ import { PdfErrorState } from './PdfErrorState';
 import { PdfLoadingState } from './PdfLoadingState';
 import { TtsControls } from './TtsControls';
 
+// Toggle debug overlay: shows text layer, highlight bounds, and rect outlines.
+const HIGHLIGHT_DEBUG = import.meta.env.DEV && false;
+
 export function PdfViewer({ url }: PdfViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,6 +41,8 @@ export function PdfViewer({ url }: PdfViewerProps) {
     textLayerReady,
     isRendering,
     error: pageError,
+    textContent,
+    viewport,
   } = usePdfPage({
     document,
     pageNumber,
@@ -46,14 +51,26 @@ export function PdfViewer({ url }: PdfViewerProps) {
     containerWidth,
   });
 
-  const { charMap, segments } = useTextMapping({ textLayerRef, textLayerReady });
+  const { charMap, segments, itemRects, charToItem, itemStartChars } = useTextMapping({
+    textLayerRef,
+    textLayerReady,
+    textContent,
+    viewport,
+  });
 
   const { play, pause, resume, stop, voices } = useSpeechSynthesis({
     flatText: charMap?.flatText ?? null,
     segments,
   });
 
-  const { sentenceRects, wordRects } = useHighlightSync({ charMap, segments, container: containerElement });
+  const { sentenceRects, wordRects } = useHighlightSync({
+    charMap,
+    segments,
+    container: containerElement,
+    itemRects,
+    charToItem,
+    itemStartChars,
+  });
 
   const prevPageNumberRef = useRef(pageNumber);
   useEffect(() => {
@@ -118,12 +135,18 @@ export function PdfViewer({ url }: PdfViewerProps) {
         <div
           ref={textLayerRef}
           className="textLayer absolute top-0 left-0 z-10 pointer-events-none"
-          style={{ opacity: 0 }}
+          style={{
+            opacity: HIGHLIGHT_DEBUG ? 0.25 : 0,
+            ...(HIGHLIGHT_DEBUG && {
+              border: '2px solid rgba(255, 0, 0, 0.5)',
+              backgroundColor: 'rgba(255, 0, 0, 0.03)',
+            }),
+          }}
           data-testid="pdf-text-layer"
           data-ready={textLayerReady}
         />
 
-        <HighlightOverlay sentenceRects={sentenceRects} wordRects={wordRects} />
+        <HighlightOverlay sentenceRects={sentenceRects} wordRects={wordRects} debug={HIGHLIGHT_DEBUG} />
       </div>
 
       <TtsControls

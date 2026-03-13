@@ -6,6 +6,8 @@ import type { CharMap, SegmentedText } from '@/types';
 vi.mock('@/lib', () => ({
   buildCharMap: vi.fn(),
   segmentText: vi.fn(),
+  buildItemRects: vi.fn(),
+  isBrowser: () => true,
 }));
 
 import { useTextMapping } from './useTextMapping';
@@ -54,7 +56,7 @@ describe('useTextMapping', () => {
 
   it('runs mapping when textLayerReady flips to true', async () => {
     const { result, rerender } = renderHook(
-      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady }),
+      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady, textContent: null, viewport: null }),
       { initialProps: { textLayerReady: false } },
     );
 
@@ -72,7 +74,7 @@ describe('useTextMapping', () => {
 
   it('resets when textLayerReady goes back to false', async () => {
     const { result, rerender } = renderHook(
-      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady }),
+      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady, textContent: null, viewport: null }),
       { initialProps: { textLayerReady: true } },
     );
 
@@ -88,7 +90,7 @@ describe('useTextMapping', () => {
 
   it('does not re-run if textLayerReady stays true', async () => {
     const { rerender } = renderHook(
-      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady }),
+      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady, textContent: null, viewport: null }),
       { initialProps: { textLayerReady: true } },
     );
 
@@ -105,7 +107,7 @@ describe('useTextMapping', () => {
     vi.useFakeTimers();
 
     const { rerender } = renderHook(
-      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady }),
+      ({ textLayerReady }) => useTextMapping({ textLayerRef, textLayerReady, textContent: null, viewport: null }),
       { initialProps: { textLayerReady: false } },
     );
 

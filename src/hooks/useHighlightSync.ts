@@ -1,13 +1,16 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 
 import {computeHighlightRects} from '@/lib';
 import {useTtsStore} from '@/stores';
-import type {CharMap, HighlightRect, SegmentedText} from '@/types';
+import type {CharMap, HighlightRect, ItemRect, SegmentedText} from '@/types';
 
 interface UseHighlightSyncParams {
     charMap: CharMap | null;
     segments: SegmentedText | null;
     container: HTMLDivElement | null;
+    itemRects: ItemRect[] | null;
+    charToItem: Int32Array | null;
+    itemStartChars: Int32Array | null;
 }
 
 interface SegmentRange {
@@ -35,78 +38,23 @@ function computeRects(
     ranges: ReadonlyArray<SegmentRange> | undefined,
     index: number,
     isPlaying: boolean,
-    container: HTMLDivElement | null,
-    containerRect: DOMRect | null,
+    itemRects: ItemRect[] | null,
+    charToItem: Int32Array | null,
+    itemStartChars: Int32Array | null,
 ) {
-    if (!charMap || !ranges || index < 0 || !isPlaying || !container) return [];
+    if (!charMap || !ranges || index < 0 || !isPlaying) return [];
 
     const range = ranges[index];
     if (!range) return [];
 
-    const rects = computeHighlightRects(charMap, range.startChar, range.endChar, container, containerRect ?? undefined);
-    return rects;
-}
-
-function cloneRect(rect: DOMRect): DOMRect {
-    return new DOMRect(rect.x, rect.y, rect.width, rect.height);
-}
-
-function hasRectChanged(previousRect: DOMRect | null, nextRect: DOMRect): boolean {
-    if (!previousRect) return true;
-    return (
-        previousRect.x !== nextRect.x ||
-        previousRect.y !== nextRect.y ||
-        previousRect.width !== nextRect.width ||
-        previousRect.height !== nextRect.height
+    return computeHighlightRects(
+        charMap,
+        range.startChar,
+        range.endChar,
+        itemRects,
+        charToItem,
+        itemStartChars,
     );
-}
-
-function useContainerRect(container: HTMLDivElement | null) {
-    const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
-
-    useEffect(() => {
-        if (!container) return;
-
-        let frame: number | null = null;
-
-        const updateRect = () => {
-            const nextRect = cloneRect(container.getBoundingClientRect());
-            setContainerRect((prevRect) => (hasRectChanged(prevRect, nextRect) ? nextRect : prevRect));
-        };
-
-        const scheduleRectUpdate = () => {
-            if (frame !== null) return;
-            // Coalesce rapid ResizeObserver callbacks into a single layout read per frame.
-            frame = requestAnimationFrame(() => {
-                frame = null;
-                updateRect();
-            });
-        };
-
-        scheduleRectUpdate();
-        const observer = new ResizeObserver(() => {
-            scheduleRectUpdate();
-        });
-        observer.observe(container);
-        // Position can change without element resize (e.g. viewport width changes around max-width layout).
-        window.addEventListener('resize', scheduleRectUpdate);
-        window.addEventListener('scroll', scheduleRectUpdate, true);
-        window.visualViewport?.addEventListener('resize', scheduleRectUpdate);
-        window.visualViewport?.addEventListener('scroll', scheduleRectUpdate);
-
-        return () => {
-            observer.disconnect();
-            window.removeEventListener('resize', scheduleRectUpdate);
-            window.removeEventListener('scroll', scheduleRectUpdate, true);
-            window.visualViewport?.removeEventListener('resize', scheduleRectUpdate);
-            window.visualViewport?.removeEventListener('scroll', scheduleRectUpdate);
-            if (frame !== null) {
-                cancelAnimationFrame(frame);
-            }
-        };
-    }, [container]);
-
-    return containerRect;
 }
 
 function scrollToFirstRect(rects: HighlightRect[], container: HTMLDivElement | null) {
@@ -119,12 +67,11 @@ function scrollToFirstRect(rects: HighlightRect[], container: HTMLDivElement | n
  * Use this in the viewer once text mapping is available to drive sentence/word
  * highlight rectangles and auto-scroll the active sentence into view.
  */
-export function useHighlightSync({charMap, segments, container}: UseHighlightSyncParams) {
+export function useHighlightSync({charMap, segments, container, itemRects, charToItem, itemStartChars}: UseHighlightSyncParams) {
     const currentSentenceIndex = useTtsStore.use.currentSentenceIndex();
     const currentWordIndex = useTtsStore.use.currentWordIndex();
     const isPlaying = useTtsStore.use.isPlaying();
     const isPaused = useTtsStore.use.isPaused();
-    const containerRect = useContainerRect(container);
 
     const prevSentenceIndexRef = useRef(-1);
     const prevIsPausedRef = useRef(false);
@@ -135,10 +82,11 @@ export function useHighlightSync({charMap, segments, container}: UseHighlightSyn
             segments?.sentences,
             currentSentenceIndex,
             isPlaying,
-            container,
-            containerRect,
+            itemRects,
+            charToItem,
+            itemStartChars,
         );
-    }, [charMap, segments, currentSentenceIndex, isPlaying, container, containerRect]);
+    }, [charMap, segments, currentSentenceIndex, isPlaying, itemRects, charToItem, itemStartChars]);
 
     const wordRects = useMemo(() => {
         return computeRects(
@@ -146,10 +94,11 @@ export function useHighlightSync({charMap, segments, container}: UseHighlightSyn
             segments?.words,
             currentWordIndex,
             isPlaying,
-            container,
-            containerRect,
+            itemRects,
+            charToItem,
+            itemStartChars,
         );
-    }, [charMap, segments, currentWordIndex, isPlaying, container, containerRect]);
+    }, [charMap, segments, currentWordIndex, isPlaying, itemRects, charToItem, itemStartChars]);
 
     useEffect(() => {
         if (!isPlaying || isPaused) return;
@@ -159,7 +108,7 @@ export function useHighlightSync({charMap, segments, container}: UseHighlightSyn
         prevSentenceIndexRef.current = currentSentenceIndex;
 
         scrollToFirstRect(sentenceRects, container);
-    }, [currentSentenceIndex, sentenceRects, isPlaying, isPaused, container, containerRect]);
+    }, [currentSentenceIndex, sentenceRects, isPlaying, isPaused, container]);
 
     useEffect(() => {
         // When resuming playback, re-center the active sentence for continuity.
