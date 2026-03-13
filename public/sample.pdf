@@ -1,0 +1,382 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 3086
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 771.0238582677164914 Td
+(The history of artificial intelligence began in antiquity, with myths and stories of artificial) Tj
+T* (beings endowed with intelligence. The seeds of modern AI were planted by philosophers) Tj
+T* (who attempted to describe the process of human thinking as the mechanical manipulation) Tj
+T* (of symbols. This work culminated in the invention of the programmable digital computer in) Tj
+T* (the 1940s, a machine based on the abstract essence of mathematical reasoning.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 651.9687401574802834 Td
+(The field of AI research was founded at a workshop held on the campus of Dartmouth) Tj
+T* (College during the summer of 1956. Those who attended would become the leaders of AI) Tj
+T* (research for decades. Many of them predicted that a machine as intelligent as a human) Tj
+T* (being would exist in no more than a generation, and they were given millions of dollars to) Tj
+T* (make this vision come true.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 532.9136220472440755 Td
+(Eventually, it became obvious that researchers had grossly underestimated the difficulty of) Tj
+T* (the project. In 1974, in response to the criticism from James Lighthill and ongoing pressure) Tj
+T* (from Congress, the governments of the United States and the United Kingdom stopped) Tj
+T* (funding undirected research into artificial intelligence. Seven years later, a visionary) Tj
+T* (initiative by the Japanese Government inspired governments and industry to provide AI) Tj
+T* (with billions of dollars, but by the late 1980s the investors became disillusioned and) Tj
+T* (withdrew funding again.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 374.1734645669290558 Td
+(Investment and interest in AI boomed in the first decades of the 21st century when) Tj
+T* (machine learning was successfully applied to many problems in academia and industry due) Tj
+T* (to the availability of large amounts of data and faster computers. The application of artificial) Tj
+T* (neural networks to natural language processing enabled significant advances in machine) Tj
+T* (translation, text generation, and sentiment analysis.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 255.1183464566928478 Td
+(Deep learning breakthroughs drove advances in image recognition, speech processing,) Tj
+T* (and game playing. By 2020, natural language processing models could generate coherent) Tj
+T* (paragraphs of text, answer questions about documents, summarize long articles, and) Tj
+T* (translate between dozens of languages with remarkable accuracy.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 155.9057480314959321 Td
+(Modern AI systems use techniques from statistics, computational intelligence, and) Tj
+T* (traditional symbolic AI. Many AI applications have been integrated into the infrastructure of) Tj
+T* (existing industries, including search engines, medical diagnosis systems, autonomous) Tj
+T* (vehicles, digital assistants, and financial trading platforms.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 2942
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 771.0238582677164914 Td
+(The ethical implications of artificial intelligence continue to be debated. Concerns include) Tj
+T* (the potential for job displacement, algorithmic bias, privacy violations, and the) Tj
+T* (concentration of power. Researchers and policymakers are working to develop frameworks) Tj
+T* (for responsible AI development that balance innovation with safeguards for human welfare.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 671.8112598425196893 Td
+(Natural language processing has emerged as one of the most impactful subfields of) Tj
+T* (artificial intelligence. Early approaches relied on hand-crafted rules and pattern matching.) Tj
+T* (Statistical methods introduced in the 1990s improved accuracy significantly by learning) Tj
+T* (patterns from large text corpora. The transformer architecture, introduced in 2017,) Tj
+T* (revolutionized the field by enabling models to process entire sequences in parallel.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 552.7561417322833677 Td
+(Computer vision is another major area of AI research. The ability of machines to interpret) Tj
+T* (and understand visual information from the world has applications ranging from medical) Tj
+T* (imaging to autonomous navigation. Convolutional neural networks, first applied) Tj
+T* (successfully to image classification in the early 2010s, remain a cornerstone of modern) Tj
+T* (computer vision systems.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 433.7010236220471597 Td
+(Reinforcement learning enables AI agents to learn optimal behavior through trial and error.) Tj
+T* (An agent interacts with an environment, receiving rewards or penalties for its actions, and) Tj
+T* (gradually develops strategies to maximize cumulative reward. This approach has achieved) Tj
+T* (remarkable results in game playing, robotics, and resource optimization.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 334.4884251968503008 Td
+(The future of artificial intelligence holds both tremendous promise and significant) Tj
+T* (uncertainty. As AI systems become more capable, their potential to transform healthcare,) Tj
+T* (education, scientific research, and creative endeavors grows. At the same time, ensuring) Tj
+T* (that these powerful tools are developed and deployed responsibly remains one of the great) Tj
+T* (challenges of our time.) Tj
+ET
+BT
+/F1 12 Tf
+18. TL
+0 g
+56.6929133858267775 215.4333070866141497 Td
+(Transfer learning has become a fundamental technique in modern machine learning.) Tj
+T* (Rather than training models from scratch for each new task, practitioners can fine-tune) Tj
+T* (models that have been pre-trained on large datasets. This approach dramatically reduces) Tj
+T* (the amount of task-specific data and computation required, making advanced AI) Tj
+T* (capabilities accessible to a wider range of applications and organizations.) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R ]
+/Count 2
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+/F4 10 0 R
+/F5 11 0 R
+/F6 12 0 R
+/F7 13 0 R
+/F8 14 0 R
+/F9 15 0 R
+/F10 16 0 R
+/F11 17 0 R
+/F12 18 0 R
+/F13 19 0 R
+/F14 20 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+21 0 obj
+<<
+/Producer (jsPDF 4.2.0)
+/CreationDate (D:20260313102728+01'00')
+>>
+endobj
+22 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000006421 00000 n 
+0000008246 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000003290 00000 n 
+0000003427 00000 n 
+0000006484 00000 n 
+0000006609 00000 n 
+0000006739 00000 n 
+0000006872 00000 n 
+0000007010 00000 n 
+0000007134 00000 n 
+0000007263 00000 n 
+0000007395 00000 n 
+0000007531 00000 n 
+0000007659 00000 n 
+0000007786 00000 n 
+0000007915 00000 n 
+0000008048 00000 n 
+0000008150 00000 n 
+0000008496 00000 n 
+0000008582 00000 n 
+trailer
+<<
+/Size 23
+/Root 22 0 R
+/Info 21 0 R
+/ID [ <686A994AA02A972BF85F1FA48EE21894> <686A994AA02A972BF85F1FA48EE21894> ]
+>>
+startxref
+8686
+%%EOF

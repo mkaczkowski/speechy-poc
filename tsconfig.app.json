@@ -1,0 +1,10 @@
+{
+  "extends": "@react-spa-scaffold/tsconfig/react",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "tests"]
+}

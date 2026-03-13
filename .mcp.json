@@ -1,0 +1,1 @@
+{ "mcpServers": { "react-spa-scaffold": { "command": "npx", "args": ["-y", "@react-spa-scaffold/mcp@latest"] } } }
