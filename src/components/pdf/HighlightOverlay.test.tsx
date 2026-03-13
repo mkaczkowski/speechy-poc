@@ -12,9 +12,11 @@ const sentenceRects: HighlightRect[] = [
 const wordRects: HighlightRect[] = [{ left: 15, top: 22, width: 50, height: 14 }];
 
 describe('HighlightOverlay', () => {
-  it('renders nothing when no highlights are present', () => {
-    const { container } = render(<HighlightOverlay sentenceRects={[]} wordRects={[]} />);
-    expect(container.innerHTML).toBe('');
+  it('renders overlay with no word highlight when no highlights are present', () => {
+    render(<HighlightOverlay sentenceRects={[]} wordRects={[]} />);
+    const overlay = screen.getByTestId('highlight-overlay');
+    expect(overlay).toBeInTheDocument();
+    expect(screen.queryByTestId('word-highlight')).not.toBeInTheDocument();
   });
 
   it('renders sentence and word overlays together', () => {
@@ -22,12 +24,23 @@ describe('HighlightOverlay', () => {
 
     expect(screen.getByTestId('highlight-overlay')).toHaveClass('pointer-events-none');
     const sentenceHighlights = screen.getAllByTestId('sentence-highlight');
-    const wordHighlights = screen.getAllByTestId('word-highlight');
+    const wordHighlight = screen.getByTestId('word-highlight');
 
     expect(sentenceHighlights).toHaveLength(2);
-    expect(wordHighlights).toHaveLength(1);
     expect(sentenceHighlights[0]).toHaveClass('pdf-highlight', 'pdf-highlight-sentence');
-    expect(wordHighlights[0]).toHaveClass('pdf-highlight', 'pdf-highlight-word');
+    expect(wordHighlight).toHaveClass('pdf-highlight', 'pdf-highlight-word');
+  });
+
+  it('renders a single word highlight div when wordRects provided', () => {
+    render(<HighlightOverlay sentenceRects={sentenceRects} wordRects={wordRects} />);
+    const wordHighlights = screen.getAllByTestId('word-highlight');
+    expect(wordHighlights).toHaveLength(1);
+  });
+
+  it('first word highlight has no transition (appears instantly)', () => {
+    render(<HighlightOverlay sentenceRects={[]} wordRects={wordRects} />);
+    const wordHighlight = screen.getByTestId('word-highlight');
+    expect(wordHighlight.style.transition).toBe('');
   });
 
   it.each([

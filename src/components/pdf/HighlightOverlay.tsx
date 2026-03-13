@@ -1,6 +1,5 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
-import { cn } from '@/lib/utils';
 import type { HighlightRect } from '@/types';
 
 interface HighlightOverlayProps {
@@ -33,19 +32,74 @@ function wordRectToStyle(rect: HighlightRect) {
   };
 }
 
-const highlightBaseClass =
-  'pdf-highlight absolute rounded-sm border transition-opacity duration-200 ease-out motion-reduce:transition-none';
+const sentenceHighlightClass =
+  'pdf-highlight absolute rounded-sm border pdf-highlight-sentence transition-opacity duration-200 ease-out motion-reduce:transition-none';
 
-const sentenceHighlightClass = cn(highlightBaseClass, 'pdf-highlight-sentence');
-const wordHighlightClass = cn(highlightBaseClass, 'pdf-highlight-word');
+const wordHighlightClass = 'pdf-highlight absolute rounded-sm border pdf-highlight-word';
+
+const TRANSITION_FULL =
+  'left 150ms ease-out, top 150ms ease-out, width 150ms ease-out, height 150ms ease-out, opacity 150ms ease-out';
+const TRANSITION_OPACITY = 'opacity 150ms ease-out';
+
+interface WordAnimState {
+  /** wordRects reference from the last processed render */
+  trackedRects: HighlightRect[];
+  /** Whether at least one word has been positioned */
+  hasPosition: boolean;
+  /** Previous word rect top (for large-jump detection) */
+  prevTop: number;
+  /** Previous word rect height (for large-jump detection) */
+  prevHeight: number;
+  /** Computed CSS transition string */
+  transition: string | undefined;
+}
+
+const INITIAL_ANIM_STATE: WordAnimState = {
+  trackedRects: [],
+  hasPosition: false,
+  prevTop: 0,
+  prevHeight: 0,
+  transition: undefined,
+};
 
 export const HighlightOverlay = memo(function HighlightOverlay({
   sentenceRects,
   wordRects,
   debug = false,
 }: HighlightOverlayProps) {
-  if (sentenceRects.length === 0 && wordRects.length === 0 && !debug) {
-    return null;
+  const [anim, setAnim] = useState<WordAnimState>(INITIAL_ANIM_STATE);
+
+  const hasWord = wordRects.length > 0;
+  const wordStyle = hasWord ? wordRectToStyle(wordRects[0]) : undefined;
+
+  // React-approved "adjust state during render" pattern:
+  // When wordRects changes by reference, compute the new animation state
+  // and schedule a synchronous re-render before commit.
+  if (wordRects !== anim.trackedRects) {
+    let transition: string | undefined;
+    let hasPosition: boolean;
+
+    if (!hasWord) {
+      transition = undefined;
+      hasPosition = false;
+    } else if (!anim.hasPosition) {
+      // First word — appear instantly, no animation
+      transition = undefined;
+      hasPosition = true;
+    } else {
+      hasPosition = true;
+      const yDelta = Math.abs((wordStyle?.top ?? 0) - anim.prevTop);
+      const isLargeJump = yDelta > (wordStyle?.height ?? 0) * 1.5;
+      transition = isLargeJump ? TRANSITION_OPACITY : TRANSITION_FULL;
+    }
+
+    setAnim({
+      trackedRects: wordRects,
+      hasPosition,
+      prevTop: wordStyle?.top ?? 0,
+      prevHeight: wordStyle?.height ?? 0,
+      transition,
+    });
   }
 
   return (
@@ -69,14 +123,17 @@ export const HighlightOverlay = memo(function HighlightOverlay({
           style={debug ? { ...rectToStyle(rect), ...DEBUG_OUTLINE } : rectToStyle(rect)}
         />
       ))}
-      {wordRects.map((rect, index) => (
+      {hasWord && wordStyle && (
         <div
-          key={`word-${index}`}
           className={wordHighlightClass}
           data-testid="word-highlight"
-          style={debug ? { ...wordRectToStyle(rect), ...DEBUG_OUTLINE } : wordRectToStyle(rect)}
+          style={{
+            ...wordStyle,
+            transition: anim.transition,
+            ...(debug ? DEBUG_OUTLINE : {}),
+          }}
         />
-      ))}
+      )}
     </div>
   );
 });
