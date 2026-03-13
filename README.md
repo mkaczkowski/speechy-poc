@@ -1,6 +1,6 @@
 # PDF Text Highlighting + TTS Sync PoC
 
-![Speechy app hero screenshot](assets/CleanShot%202026-03-13%20at%2013.49.07.png)
+![CleanShot 2026-03-14 at 00.21.55.png](assets/CleanShot%202026-03-14%20at%2000.21.55.png)![Speechy app hero screenshot](assets/CleanShot%202026-03-13%20at%2013.49.07.png)
 
 Proof-of-concept for synchronized text-to-speech playback in PDFs using [PDF.js](https://mozilla.github.io/pdf.js/) and a custom highlight overlay. Built with React 19, TypeScript, and Vite 7.
 

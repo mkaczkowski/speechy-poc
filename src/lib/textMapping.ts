@@ -1,4 +1,4 @@
-import type { TextContent } from 'pdfjs-dist';
+import type { TextContent } from 'pdfjs-dist/types/src/display/api';
 import type { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 
 import type { CharMap, HighlightRect, ItemRect, SegmentedText, TextSegment } from '@/types/pdf';
@@ -184,7 +184,7 @@ export function buildItemRects(
   viewport: PageViewport,
   charMap: CharMap,
   textLayerElement?: HTMLElement,
-): { itemRects: ItemRect[]; charToItem: Int32Array } {
+): { itemRects: ItemRect[]; charToItem: Int32Array; itemStartChars: Int32Array } {
   const items = textContent.items;
   const itemRects: ItemRect[] = [];
 

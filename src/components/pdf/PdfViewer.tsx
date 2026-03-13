@@ -137,10 +137,10 @@ export function PdfViewer({ url }: PdfViewerProps) {
           className="textLayer absolute top-0 left-0 z-10 pointer-events-none"
           style={{
             opacity: HIGHLIGHT_DEBUG ? 0.25 : 0,
-            ...(HIGHLIGHT_DEBUG && {
+            ...(HIGHLIGHT_DEBUG ? {
               border: '2px solid rgba(255, 0, 0, 0.5)',
               backgroundColor: 'rgba(255, 0, 0, 0.03)',
-            }),
+            } : {}),
           }}
           data-testid="pdf-text-layer"
           data-ready={textLayerReady}

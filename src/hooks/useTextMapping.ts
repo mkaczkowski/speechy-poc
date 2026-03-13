@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useState } from 'react';
 
-import type { TextContent } from 'pdfjs-dist';
+import type { TextContent } from 'pdfjs-dist/types/src/display/api';
 import type { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 
 import { isBrowser } from '@/lib';

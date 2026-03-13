@@ -1,6 +1,7 @@
 import {type RefObject, useEffect, useReducer} from 'react';
 
-import type {PDFDocumentProxy, PDFPageProxy, RenderTask, TextContent} from 'pdfjs-dist';
+import type {PDFDocumentProxy, PDFPageProxy, RenderTask} from 'pdfjs-dist';
+import type {TextContent} from 'pdfjs-dist/types/src/display/api';
 import {TextLayer} from 'pdfjs-dist';
 
 interface UsePdfPageParams {

@@ -45,7 +45,7 @@ describe('useTextMapping', () => {
 
   it('returns null when textLayerReady is false', () => {
     const { result } = renderHook(() =>
-      useTextMapping({ textLayerRef, textLayerReady: false }),
+      useTextMapping({ textLayerRef, textLayerReady: false, textContent: null, viewport: null }),
     );
 
     expect(result.current.charMap).toBeNull();
